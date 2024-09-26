@@ -1,3 +1,4 @@
+Data/
 .ipynb_checkpoints/
 Data_Generation/__pycache__/
 training/__pycache__/
