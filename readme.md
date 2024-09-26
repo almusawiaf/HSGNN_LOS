@@ -1,6 +1,6 @@
 # Length of Stay Prediction with MIMIC-III
 
-This project implements multiple machine learning models to predict the **Length of Stay (LoS)** for patients using the **MIMIC-III** clinical database. The models include:
+This project propose the prediction of **Length of Stay (LoS)** utilizing a heterogeneous graph representation of the MIMIC-III dataset. Along with that, this project implements multiple machine learning models to predict the **Length of Stay (LoS)** for patients using the **MIMIC-III** clinical database. The models include:
 - Artificial Neural Networks (ANN)
 - Random Forest
 - Support Vector Machine (SVM)
