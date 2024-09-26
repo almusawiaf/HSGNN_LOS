@@ -1,0 +1,2 @@
+[NbConvertApp] Converting notebook c_generate_data.ipynb to notebook
+[NbConvertApp] Writing 46074 bytes to X_c_generate_data.ipynb
