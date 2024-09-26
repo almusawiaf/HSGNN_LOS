@@ -24,8 +24,8 @@ The following machine learning models are implemented:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your_username/los-prediction.git
-    cd los-prediction
+    git clone https://github.com/almusawiaf/HSGNN_LOS.git
+    cd HSGNN_LOS
     ```
 
 2. Install dependencies:
