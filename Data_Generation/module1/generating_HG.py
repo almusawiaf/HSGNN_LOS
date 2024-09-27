@@ -10,9 +10,8 @@ from copy import deepcopy
 
 class Generate_HG:
     
-    def __init__(self, sampling = False, num_Patients = 500):
+    def __init__(self):
 
-        self.sampling = sampling
         self.num_Patients = num_Patients
         self.folder_path = '/lustre/home/almusawiaf/PhD_Projects/MIMIC_resources'
         # self.folder_path = '/home/almusawiaf/MyDocuments/PhD_Projects/Data/MIMIC_resources'        
@@ -119,10 +118,6 @@ class Generate_HG:
         # Extract unique visits and patients from the diagnosis DataFrame
         visits = df_DiagnosisICD['HADM_ID'].unique()
         patients = df_DiagnosisICD['SUBJECT_ID'].unique()
-
-        if self.sampling:
-            print('\nWe are SAMPLING\n')
-            patients = random.sample(list(patients), self.num_Patients)
 
         df_labs['HADM_ID'] = df_labs['HADM_ID'].astype(int)
 
