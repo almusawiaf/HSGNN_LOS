@@ -1,7 +1,16 @@
+Data/203_Diagnoses/
+Data/HG/
 .ipynb_checkpoints/
 Data_Generation/__pycache__/
+Data_Generation/logs/
+Data_Generation/Old_Implementation/
+
 training/__pycache__/
 training/.ipynb_checkpoints/
 training/classification/.ipynb_checkpoints/
 training/regression/.ipynb_checkpoints/
-Data/
+
+
+
+
+
