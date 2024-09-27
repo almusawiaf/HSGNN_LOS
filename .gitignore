@@ -7,6 +7,9 @@ Data_Generation/Old_Implementation/
 
 training/__pycache__/
 training/.ipynb_checkpoints/
+training/classification/
+training/regression/
+
 training/classification/.ipynb_checkpoints/
 training/regression/.ipynb_checkpoints/
 

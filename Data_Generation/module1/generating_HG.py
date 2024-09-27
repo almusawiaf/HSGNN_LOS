@@ -12,7 +12,6 @@ class Generate_HG:
     
     def __init__(self):
 
-        self.num_Patients = num_Patients
         self.folder_path = '/lustre/home/almusawiaf/PhD_Projects/MIMIC_resources'
         # self.folder_path = '/home/almusawiaf/MyDocuments/PhD_Projects/Data/MIMIC_resources'        
         
@@ -231,16 +230,29 @@ def G_statistics(G):
     print('------------------------------------------\n')
 
 def remove_patients_and_linked_visits(nodes, HG):
-    '''remove patients and their visits from HG'''
-    print('Number of PATIENTS to remove: ', len(nodes))
+    """
+    Remove patients and their linked visits from the graph HG.
     
-    new_HG = deepcopy(HG)
-    nodes_to_remove = nodes
-    for node in nodes:
-        for v in HG.neighbors(node):
-            if v[0]=='V':
-                nodes_to_remove.append(v)
-        nodes_to_remove.append(node)
-    print('Number of nodes to remove: ', len(nodes_to_remove))
-    new_HG.remove_nodes_from(nodes_to_remove)
-    return new_HG     
+    Parameters:
+    nodes (list): List of patient nodes to be removed.
+    HG (networkx.Graph): The heterogeneous graph.
+    
+    Returns:
+    networkx.Graph: The modified graph with patients and their visits removed.
+    """
+    print(f'Number of PATIENTS to remove: {len(nodes)}')
+    
+    # Using a set to store nodes to avoid duplicates
+    nodes_to_remove = set(nodes)
+    
+    # Find all visit nodes connected to the patient nodes
+    for patient in nodes:
+        visit_neighbors = {v for v in HG.neighbors(patient) if v[0] == 'V'}
+        nodes_to_remove.update(visit_neighbors)
+    
+    print(f'Number of nodes to remove: {len(nodes_to_remove)}')
+
+    # Removing nodes from the graph in place to avoid deepcopy
+    HG.remove_nodes_from(nodes_to_remove)
+    
+    return HG
