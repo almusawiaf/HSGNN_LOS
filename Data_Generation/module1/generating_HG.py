@@ -20,41 +20,42 @@ class Generate_HG:
         print('Loading the dataframes...')
         
         new_Diagnosis, new_Prescriptions, new_Procedures, new_LabTest, new_MicroBio = self.load_patients_data()
-
-        new_LabTest2 = self.split_lab_test(new_LabTest)
         
         print('Extracting bipartite networks...')
 
-        self.HG = nx.Graph()
 
-        CV = self.get_Bipartite(new_Diagnosis,    'SUBJECT_ID', 'HADM_ID', 'C', 'V', 'Visits')
-        VD = self.get_Bipartite(new_Diagnosis,    'HADM_ID', 'ICD9_CODE',  'V', 'D', 'Diagnosis')
-        VP = self.get_Bipartite(new_Procedures,   'HADM_ID', 'ICD9_CODE', 'V', 'P', 'Procedures')
-        VM = self.get_Bipartite(new_Prescriptions,'hadm_id', 'drug', 'V', 'M', 'Medications')
-        VL = self.get_Bipartite(new_LabTest2,     'HADM_ID', 'ITEMID_FLAG', 'V', 'L', 'Lab tests')
+        CV = self.get_Bipartite(new_Diagnosis,    'SUBJECT_ID', 'HADM_ID',  'C', 'V', 'Visits')
+        VD = self.get_Bipartite(new_Diagnosis,    'HADM_ID', 'ICD9_CODE',   'V', 'D', 'Diagnosis')
+        VP = self.get_Bipartite(new_Procedures,   'HADM_ID', 'ICD9_CODE',   'V', 'P', 'Procedures')
+        VM = self.get_Bipartite(new_Prescriptions,'hadm_id', 'drug',        'V', 'M', 'Medications')
+        VL = self.get_Bipartite(new_LabTest,      'HADM_ID', 'ITEMID_FLAG', 'V', 'L', 'Lab tests')
         VB = self.get_Bipartite(new_MicroBio,     'HADM_ID', 'SPEC_ITEMID', 'V', 'B', 'MicroBiology tests')
         
-        edges_list = CV + VD + VP + VM + VL + VB
+        self.HG = nx.Graph()
+        edges_list = CV + VD + VP + VM + VB + VL      
+                
         self.HG.add_edges_from(edges_list)
+        G_statistics(self.HG)
         
+        self.selecting_top_labs()       
+        self.remove_isolated_nodes()        
+        self.update_statistics()
+
         G_statistics(self.HG)
 
-        # self.selecting_top_labs()       
-        # self.remove_isolated_nodes()        
-
-        # Nodes = list(self.HG.nodes())
-
-        # self.Patients =    [v for v in Nodes if v[0]=='C']
-        # self.Visits =      [v for v in Nodes if v[0]=='V']
-        # self.Medications = [v for v in Nodes if v[0]=='M']
-        # self.Diagnosis  =  [v for v in Nodes if v[0]=='D']
-        # self.Procedures =  [v for v in Nodes if v[0]=='P']
-        # self.Labs       =  [v for v in Nodes if v[0]=='L']
-        # self.MicroBio   =  [v for v in Nodes if v[0]=='B']
-        # self.Nodes = Nodes
-        # G_statistics(self.HG)
-
-        # print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    
+    def update_statistics(self):
+        Nodes = list(self.HG.nodes())
+        self.Patients =    [v for v in Nodes if v[0]=='C']
+        self.Visits =      [v for v in Nodes if v[0]=='V']
+        self.Medications = [v for v in Nodes if v[0]=='M']
+        self.Diagnosis  =  [v for v in Nodes if v[0]=='D']
+        self.Procedures =  [v for v in Nodes if v[0]=='P']
+        self.Labs       =  [v for v in Nodes if v[0]=='L']
+        self.MicroBio   =  [v for v in Nodes if v[0]=='B']
+        self.Nodes = Nodes
+        
 
     def get_Bipartite(self, DF, id1, id2, c1, c2, msg):
         '''DF: dataframe, id1: row1, id2: row2, c1, c2: node code'''  
@@ -84,7 +85,8 @@ class Generate_HG:
 
     def remove_isolated_nodes(self):
         print('Removing isolated nodes')
-        isolated_nodes = [v for v in self.HG.nodes() if self.HG.degree(v)==0]
+        self.update_statistics()
+        isolated_nodes = [v for v in self.Nodes if self.HG.degree(v)==0]
         self.HG = remove_patients_and_linked_visits(isolated_nodes, self.HG)
 
 
@@ -105,10 +107,12 @@ class Generate_HG:
         df_labs          = pd.read_csv(f'{self.folder_path}/LABEVENTS.csv')    # Lab test!
         df_microbio      = pd.read_csv(f'{self.folder_path}/MICROBIOLOGYEVENTS.csv')    # Microbiology!
         
+        
         # Handling missing values upfront (dropping rows with missing important columns)
         df_DiagnosisICD.dropna(subset=['HADM_ID', 'ICD9_CODE'], inplace=True)
         df_ProceduresICD.dropna(subset=['ICD9_CODE'], inplace=True)
         df_Medications.dropna(subset=['drug'], inplace=True)
+        df_labs.dropna(subset=['HADM_ID'], inplace=True)
         df_labs.dropna(subset=['ITEMID'], inplace=True)
         df_microbio.dropna(subset=['SPEC_ITEMID'], inplace=True)
         
@@ -120,7 +124,10 @@ class Generate_HG:
             print('\nWe are SAMPLING\n')
             patients = random.sample(list(patients), self.num_Patients)
 
-        
+        df_labs['HADM_ID'] = df_labs['HADM_ID'].astype(int)
+
+        df_labs = self.split_lab_test(df_labs)        
+
         # Filtering the data for selected patients and visits
         print('Use the patients inside the new DataFrame....')
         new_Diagnosis = df_DiagnosisICD[df_DiagnosisICD['HADM_ID'].isin(visits)].copy()
@@ -148,7 +155,7 @@ class Generate_HG:
         Procedures = sorted(new_Procedures['ICD9_CODE'].unique())
         Medication = sorted(new_Medication['drug'].unique())
         Diagnosis  = new_Diagnosis['ICD9_CODE'].unique()
-        LabTests   = new_LabTest['ITEMID'].unique()
+        LabTests   = new_LabTest['ITEMID_FLAG'].unique()
         MicroBio   = new_MicroBio['SPEC_ITEMID'].unique()
     
         print('General Information:\n---------------------------')
@@ -165,6 +172,7 @@ class Generate_HG:
 
 
     def selecting_top_labs(self):
+        self.update_statistics()
         node_degrees = {n: self.HG.degree(n) for n in self.Nodes if n[0] == 'L'}
         top_nodes = dict(sorted(node_degrees.items(), key=lambda item: item[1], reverse=True)[:480])
         labs_to_delete = [n for n in node_degrees if n not in top_nodes]
@@ -209,7 +217,7 @@ def G_statistics(G):
     Patients =    [v for v in Nodes if v[0]=='C']
     Visits =      [v for v in Nodes if v[0]=='V']
     Medications = [v for v in Nodes if v[0]=='M']
-    Diagnosis  =   [v for v in Nodes if v[0]=='D']
+    Diagnosis  =  [v for v in Nodes if v[0]=='D']
     Procedures =  [v for v in Nodes if v[0]=='P']
     Labs       =  [v for v in Nodes if v[0]=='L']
     MicroBio   =  [v for v in Nodes if v[0]=='B']
@@ -241,5 +249,3 @@ def remove_patients_and_linked_visits(nodes, HG):
     print('Number of nodes to remove: ', len(nodes_to_remove))
     new_HG.remove_nodes_from(nodes_to_remove)
     return new_HG     
-
-
