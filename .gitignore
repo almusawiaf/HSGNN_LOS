@@ -1,5 +1,4 @@
-Data/203_Diagnoses/
-Data/HG/
+Data/
 .ipynb_checkpoints/
 Data_Generation/__pycache__/
 Data_Generation/logs/
