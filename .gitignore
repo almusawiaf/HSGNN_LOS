@@ -1,14 +1,18 @@
 Data/
 .ipynb_checkpoints/
-Data_Generation/__pycache__/
-Data_Generation/logs/
-Data_Generation/Old_Implementation/
+Baselines/Data_Generation/__pycache__/
+Baselines/Data_Generation/logs/
+Baselines/Data_Generation/Old_Implementation/
 
 
-training/classification/
-training/regression/
+Baselines/training/classification/
+Baselines/training/regression/
 
 
+HSGNN/Data_Generation2/logs/
+HSGNN/Data_Generation2/module_demographics/
+HSGNN/Data_Generation2/SNF_Module/
+HSGNN/Data_Generation2/X/
 
 
-
+HSGNN/GNN_Models/logs/
