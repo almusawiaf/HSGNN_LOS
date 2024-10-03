@@ -19,23 +19,3 @@ The following machine learning models are implemented:
 2. **Random Forest**
 3. **Support Vector Machine (SVM)**
 4. **Logistic Regression**
-
-## Installation
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/almusawiaf/HSGNN_LOS.git
-    cd HSGNN_LOS
-    ```
-
-2. Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. Set up the MIMIC-III dataset:
-    - Ensure the MIMIC-III data is preprocessed and stored in the `data/` directory.
-
-## Usage
-
-To train and evaluate models, run:
